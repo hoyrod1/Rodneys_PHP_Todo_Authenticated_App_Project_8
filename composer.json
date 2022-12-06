@@ -1,0 +1,16 @@
+{
+    "name": "project/user-authentication",
+    "description": "PHP User Authentication Treehouse Course",
+    "type": "project",
+    "require": {
+        "symfony/http-foundation": "~3.1",
+        "firebase/php-jwt": "^5.0",
+        "vlucas/phpdotenv": "^3.3"
+    },
+    "author": [
+        {
+            "name": "Rodney St. Cloud",
+            "email": "hoyrod1@aol.com"
+        }
+    ]    
+}
