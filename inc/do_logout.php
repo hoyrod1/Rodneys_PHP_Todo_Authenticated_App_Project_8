@@ -1,10 +1,11 @@
 <?php
 require_once 'bootstrap.php';
 
-/** USE WHEN SESSION HAS BEEN SET **/
-$session->remove('auth_logged_in');
-$session->remove('auth_user_id');
+$session->getFlashBag()->add('success', 'You are logged out');;
 
-$session->getFlashBag()->add('success', 'You are logged out');
+/** SET COOKIE "auth_user_info" WITH EXPIRED COOKIE TIME TO LOG OUT THE USER **/
+$expired_cookie = time() - 3600;
+$cookie = set_userInfo_cookie('auth_user_info', $expired_cookie);
 
-redirect('../login.php');
+/** REDIRECT IF COOKIE SET AS A JSON OBJECT **/
+redirect('../login.php', ['cookies' => [$cookie]]);

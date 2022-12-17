@@ -2,9 +2,8 @@
 /** THE is_authenticated FUNCTION IS USED TO VERIFY USERS IS LOGGED IN **/
 function is_authenticated()
 {
-    // USE WHEN SESSION HAS BEEN SET //
-    global $session;
-    return $session->get('auth_logged_in', false);
+    // USE WHEN COOKIE HAS BEEN SET //
+    return $username = decode_auth_cookie();    
 }
 
 /**  
@@ -17,6 +16,7 @@ function require_authorization()
     {
         global $session;
         $session->getFlashBag()->add('error', 'Please login or register, you are not authorized');
+        /** REDIRECT FOR ONE COOKIE NAME AND VALUE **/
         redirect('login.php');
     }
 }
@@ -28,9 +28,8 @@ function is_owner()
     {
         return false;
     }
-    // USE WHEN SESSION HAS BEEN SET //
-    global $session;
-    return $session->get('auth_user_id');
+    //**  USE WHEN COOKIE HAS BEEN SET **//
+    return $username = decode_auth_cookie('auth_user_id');        
 }
 
 /**  
@@ -39,36 +38,60 @@ function is_owner()
  * **/
 function get_authenticated_user()
 {
-    // USE WHEN SESSION HAS BEEN SET //
+    //**  USE WHEN COOKIE HAS BEEN SET **//
+    $user_name = decode_auth_cookie('auth_user_name');
+    return use_getUser($user_name);    
+}
+
+//---------------------------------------------------------------------------------------------------------------------------//
+
+/** 
+ * IN THIS "save_user_data" FUNCTION RETRIEVES AND SETS  
+ * REGISTERED USERS AND USER LOGIN INFORMATION TO A COOKIE 
+ * THAT CAN STORE MORE THAN ONE NAME AND VALUE IN A JSON OBJECT
+ * FOR THE SYMFONY REDIRECT
+ * **/
+
+ function save_user_in_cookie($user)
+{
+    // SESSION NEEDED TO SET SESSION THE SESSION "getFlashBag()" FUNCTION //
     global $session;
-    $user_name = $session->get('auth_user_name');
-    return use_getUser($user_name);
+
+    $session->getFlashBag()->add('success', "You have been logged in successfully!");
+
+    /** CREATE AN ARRAY TO STORE MORE THAN ONE COOKIE NAME AND VALUE IN A JSON OBJECT **/
+    $user_info = ['auth_user_id' => (int) $user['id'], 'auth_user_name' => $user['username']];
+    $j_user_info = json_encode($user_info);
+    $exp_time = time() + 3600;
+
+    $cookie_info = set_userInfo_cookie($j_user_info, $exp_time);
+
+    redirect('../index.php', ['cookies' => [$cookie_info]]);        
 }
 
 /** 
- * THE save_user_data FUNCTION RETRIEVES AND SETS 
- * REGISTERED USERS INFORMATION TO A SESSION 
- * **/
-function save_user_data($user)
+ * IN THIS "save_usersId_cookie" FUNCTION 
+ * A COOKIE IS SET AND RETURNED THAT CAN STORE MORE THAN ONE NAME AND VALUE
+ * IN A JSON OBJECT FOR THE SYMFONY REDIRECT
+ **/
+
+function set_userInfo_cookie($user_info, $exp_time)
 {
-        // SESSION NEEDED TO SET SESSION THE SESSION "getFlashBag()" FUNCTION //
-        global $session;
-
-        /** USE WHEN SESSION NEED TO BE SET **/
-        $session->set('auth_logged_in', true);
-        $session->set('auth_user_id', (int) $user['id']);
-        $session->set('auth_user_name', $user['username']);
-
-        $session->getFlashBag()->add('success', "You have been logged in successfully!");
-        redirect('../index.php');
+    $domain = 'localhost';
+    $cookie_info = new Symfony\Component\HttpFoundation\Cookie('auth_user_info', $user_info, $exp_time, '/', $domain, false, true);
+    return $cookie_info;
 }
 
-// function set_user_cookie($user_data, $exp_time)
-// {
-
-// }
-
-// function decode_user_cookie($property = null)
-// {
-
-// }
+function decode_auth_cookie($cookie_key = null)
+{
+    $cookie = json_decode(request()->cookies->get('auth_user_info'));
+    if ($cookie_key === null) 
+    {
+        return $cookie;
+    }
+    if (!isset($cookie->$cookie_key)) 
+    {
+        return false;
+    }
+    return $cookie->$cookie_key;
+}

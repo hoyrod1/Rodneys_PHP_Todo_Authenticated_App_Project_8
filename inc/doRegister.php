@@ -8,6 +8,8 @@ $confirmPassword = test_form_input(request()->get('confirm_password'));
 if ($password != $confirmPassword) 
 {
    $session->getFlashBag()->add('error', 'Password does not match');
+
+   /** REDIRECT FOR ONE COOKIE NAME AND VALUE **/
    redirect('../register.php');
    exit;
 }
@@ -17,6 +19,8 @@ $user = getUser($username);
 if (!empty($user)) 
 {
    $session->getFlashBag()->add('error', 'The username already exist');
+
+   /** REDIRECT FOR ONE COOKIE NAME AND VALUE **/
    redirect('../register.php');
    exit;
 }
@@ -27,4 +31,5 @@ $new_user = saveUser($username, $hashed);
 
 $session->getFlashBag()->add('success', "Your account has been created");
 
-save_user_data($user);
+/** REDISTERED USERS CREDENTIALS SAVED FOR COOKIE AUTHENTICATION **/
+save_user_in_cookie($user);
