@@ -1,29 +1,12 @@
 <?php
-/*
- * CREDENTIALS TO SET UP MYSQL DATABASE CONNECTION
- */
-// $servername = 'localhost';
-// $username = 'root';
-// $password = '';
-// $dbname = 'todo_project_8';
+$dotenv = Dotenv\Dotenv::create(__DIR__);
+$dotenv->load();
 
 try {
     // $db = new PDO( "mysql:host=$servername;dbname=$dbname", $username, $password);
     $db = new PDO('sqlite:'.__DIR__.'/todo.db');
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-    //sqlite QUERY TO CREATE users TABLE
-    // $sql = "CREATE TABLE IF NOT EXISTS users (
-    //     id INTEGER PRIMARY KEY,
-    //     username TEXT NOT NULL,
-    //     password TEXT NOT NULL
-    //     )";
-
-    // $sql = "ALTER TABLE tasks ADD COLUMN user_id INTEGER";
-    // $sql = "ALTER TABLE tasks DROP COLUMN user_id";
-    // $db->exec($sql);
-    // echo "<h1>Table tasks Altered successfully</h1>";
 
 } catch ( PDOException $e ) {
     echo 'Error connecting to the Database: ' . $e->getMessage();
